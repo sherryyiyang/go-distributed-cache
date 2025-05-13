@@ -9,19 +9,9 @@ import (
 // Cacher is an interface used for performing caching operations.
 // Applications can implement this interface to integrate different caching managers.
 type Cacher interface {
-	// Get returns the value associated with the specified key.
-	// If the key is not found or an error occurs, an error object is returned.
 	Get(key []byte) ([]byte, error)
-
-	// Set adds the value associated with the specified key to the cache with the specified expiration time.
-	// If the duration is zero, the cache is held indefinitely.
 	Set(key []byte, value []byte, expiration time.Duration) error
-
-	// Has checks whether the specified key exists in the cache.
 	Has(key []byte) bool
-
-	// Delete removes the specified key from the cache.
-	// If the key is not found, an error object is returned.
 	Delete(key []byte) error
 }
 
