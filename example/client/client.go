@@ -31,6 +31,31 @@ func New(endpoint string, _ Options) (*Client, error) {
 	}, nil
 }
 
+func (c *Client) Set(_ context.Context, key []byte, value []byte, ttl int) error {
+	cmd := &proto.CommandSet{
+		Key:   key,
+		Value: value,
+		TTL:   ttl,
+	}
+
+	_, err := c.conn.Write(cmd.Bytes())
+	if err != nil {
+		return err
+	}
+
+	resp, err := proto.ParseSetResponse(c.conn)
+	if err != nil {
+		return err
+	}
+	if resp.Status != proto.StatusOK {
+		return fmt.Errorf("server responsed with non OK status [%s]", resp.Status)
+	}
+
+	return nil
+}
+
+
+
 func (c *Client) Get(_ context.Context, key []byte) ([]byte, error) {
 	cmd := &proto.CommandGet{
 		Key: key,
@@ -53,29 +78,6 @@ func (c *Client) Get(_ context.Context, key []byte) ([]byte, error) {
 	}
 
 	return resp.Value, nil
-}
-
-func (c *Client) Set(_ context.Context, key []byte, value []byte, ttl int) error {
-	cmd := &proto.CommandSet{
-		Key:   key,
-		Value: value,
-		TTL:   ttl,
-	}
-
-	_, err := c.conn.Write(cmd.Bytes())
-	if err != nil {
-		return err
-	}
-
-	resp, err := proto.ParseSetResponse(c.conn)
-	if err != nil {
-		return err
-	}
-	if resp.Status != proto.StatusOK {
-		return fmt.Errorf("server responsed with non OK status [%s]", resp.Status)
-	}
-
-	return nil
 }
 
 func (c *Client) Close() error {
